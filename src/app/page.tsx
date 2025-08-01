@@ -4,39 +4,28 @@ import { useState, useRef } from 'react';
 import { Play, Square, Download, Mic, Settings, Volume2, Loader } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
-// Türkçe sesler listesi
-const TURKISH_VOICES = [
-  { id: 'tr-TR-AhmetNeural', name: 'Ahmet (Erkek)', gender: 'male' },
-  { id: 'tr-TR-EmelNeural', name: 'Emel (Kadın)', gender: 'female' },
-  { id: 'tr-TR-SedaNeural', name: 'Seda (Kadın)', gender: 'female' },
+// ✅ OpenAI-Compatible Sesler (travisvn/openai-edge-tts destekliyor)
+const OPENAI_VOICES = [
+  { id: 'alloy', name: 'Alloy (Kadın, Doğal)', gender: 'female', supported: true },
+  { id: 'echo', name: 'Echo (Erkek, Sakin)', gender: 'male', supported: true },
+  { id: 'fable', name: 'Fable (Kadın, Büyüleyici)', gender: 'female', supported: true },
+  { id: 'onyx', name: 'Onyx (Erkek, Derin)', gender: 'male', supported: true },
+  { id: 'nova', name: 'Nova (Kadın, Enerjik)', gender: 'female', supported: true },
+  { id: 'shimmer', name: 'Shimmer (Kadın, Yumuşak)', gender: 'female', supported: true },
 ];
 
-// Diğer popüler sesler
-const OTHER_VOICES = [
-  // İngilizce
-  { id: 'en-US-AvaNeural', name: 'Ava (İngilizce - Kadın)', gender: 'female' },
-  { id: 'en-US-AndrewNeural', name: 'Andrew (İngilizce - Erkek)', gender: 'male' },
-  { id: 'en-GB-SoniaNeural', name: 'Sonia (İngiliz - Kadın)', gender: 'female' },
-  
-  // Almanca
-  { id: 'de-DE-KatjaNeural', name: 'Katja (Almanca - Kadın)', gender: 'female' },
-  { id: 'de-DE-ConradNeural', name: 'Conrad (Almanca - Erkek)', gender: 'male' },
-  { id: 'de-DE-AmalaNeural', name: 'Amala (Almanca - Kadın)', gender: 'female' },
-  
-  // Fransızca
-  { id: 'fr-FR-DeniseNeural', name: 'Denise (Fransızca - Kadın)', gender: 'female' },
-  { id: 'fr-FR-HenriNeural', name: 'Henri (Fransızca - Erkek)', gender: 'male' },
-  { id: 'fr-FR-BrigitteNeural', name: 'Brigitte (Fransızca - Kadın)', gender: 'female' },
-  
-  // İtalyanca
-  { id: 'it-IT-ElsaNeural', name: 'Elsa (İtalyanca - Kadın)', gender: 'female' },
-  { id: 'it-IT-DiegoNeural', name: 'Diego (İtalyanca - Erkek)', gender: 'male' },
-  { id: 'it-IT-IsabellaNeural', name: 'Isabella (İtalyanca - Kadın)', gender: 'female' },
-  
-  // İspanyolca
-  { id: 'es-ES-ElviraNeural', name: 'Elvira (İspanyolca - Kadın)', gender: 'female' },
-  { id: 'es-ES-AlvaroNeural', name: 'Alvaro (İspanyolca - Erkek)', gender: 'male' },
-  { id: 'es-MX-DaliaNeural', name: 'Dalia (Meksika İspanyolcası - Kadın)', gender: 'female' },
+// 🇹🇷 Edge TTS Türkçe Sesler (destekleniyor!)
+const TURKISH_VOICES = [
+  { id: 'tr-TR-AhmetNeural', name: 'Ahmet (Erkek)', gender: 'male', supported: true },
+  { id: 'tr-TR-EmelNeural', name: 'Emel (Kadın)', gender: 'female', supported: true },
+  { id: 'tr-TR-SedaNeural', name: 'Seda (Kadın)', gender: 'female', supported: true },
+];
+
+// 🌍 Diğer Edge TTS Sesler (deneysel)
+const OTHER_EDGE_VOICES = [
+  { id: 'en-US-AvaNeural', name: 'Ava (İngilizce - Kadın)', gender: 'female', supported: false },
+  { id: 'en-US-AndrewNeural', name: 'Andrew (İngilizce - Erkek)', gender: 'male', supported: false },
+  { id: 'de-DE-KatjaNeural', name: 'Katja (Almanca - Kadın)', gender: 'female', supported: false },
 ];
 
 export default function TTSInterface() {
@@ -72,7 +61,17 @@ export default function TTSInterface() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.voiceError) {
+          toast.error(errorData.error);
+          toast('Önerilen sesler: ' + errorData.recommendedVoices.join(', '), {
+            duration: 5000,
+            icon: '💡'
+          });
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return;
       }
 
       const audioBlob = await response.blob();
@@ -200,17 +199,24 @@ export default function TTSInterface() {
                     onChange={(e) => setSelectedVoice(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   >
-                    <optgroup label="🇹🇷 Türkçe Sesler">
-                      {TURKISH_VOICES.map((voice) => (
+                    <optgroup label="✅ OpenAI Compatible Sesler (Destekleniyor)">
+                      {OPENAI_VOICES.map((voice) => (
                         <option key={voice.id} value={voice.id}>
                           {voice.name}
                         </option>
                       ))}
                     </optgroup>
-                    <optgroup label="🌍 Diğer Diller">
-                      {OTHER_VOICES.map((voice) => (
-                        <option key={voice.id} value={voice.id}>
-                          {voice.name}
+                    <optgroup label="🇹🇷 Türkçe Sesler">
+                      {TURKISH_VOICES.map((voice) => (
+                        <option key={voice.id} value={voice.id} disabled={!voice.supported}>
+                          {voice.name} {!voice.supported && '⚠️'}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🌍 Diğer Diller (Deneysel)">
+                      {OTHER_EDGE_VOICES.map((voice) => (
+                        <option key={voice.id} value={voice.id} disabled={!voice.supported}>
+                          {voice.name} {!voice.supported && '⚠️'}
                         </option>
                       ))}
                     </optgroup>

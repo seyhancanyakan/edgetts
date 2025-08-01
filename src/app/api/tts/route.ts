@@ -15,6 +15,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Desteklenen tüm sesler
+    const supportedVoices = [
+      // OpenAI Compatible
+      'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer',
+      // Türkçe Edge TTS  
+      'tr-TR-AhmetNeural', 'tr-TR-EmelNeural', 'tr-TR-SedaNeural',
+      // Diğer Edge TTS (deneysel)
+      'en-US-AvaNeural', 'en-US-AndrewNeural', 'de-DE-KatjaNeural'
+    ];
+    const isUnsupportedVoice = body.voice && !supportedVoices.includes(body.voice);
+
     // OpenAI Edge TTS API'sine istek gönder
     const response = await fetch(TTS_API_URL, {
       method: 'POST',
@@ -24,7 +35,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         input: body.input,
-        voice: body.voice || 'tr-TR-AhmetNeural',
+        voice: body.voice || 'tr-TR-AhmetNeural', // Varsayılan: Türkçe ses
         response_format: body.response_format || 'mp3',
         speed: body.speed || 1.0,
       }),
@@ -34,6 +45,19 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('TTS API Error:', response.status, errorText);
+      
+      // Desteklenmeyen ses hatası için özel mesaj
+      if (response.status === 400 && isUnsupportedVoice) {
+        return NextResponse.json(
+          { 
+            error: 'Bu ses desteklenmiyor. Lütfen desteklenen seslerden birini seçin.',
+            voiceError: true,
+            recommendedVoices: ['alloy', 'echo', 'nova', 'tr-TR-AhmetNeural', 'tr-TR-EmelNeural']
+          },
+          { status: 400 }
+        );
+      }
+      
       return NextResponse.json(
         { error: `TTS API Error: ${response.status}` },
         { status: response.status }
