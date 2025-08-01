@@ -6,22 +6,37 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - TTS_API_URL=http://tts-api:5050/v1/audio/speech
-      - TTS_API_KEY=sk-openai-edge-tts
+      - TTS_API_URL=http://46.62.160.181:5050/v1/audio/speech
+      - TTS_API_KEY=gerçek_api_key
       - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
     depends_on:
-      - tts-api
+      - openai-edge-tts
     networks:
       - tts-network
 
-  tts-api:
+  openai-edge-tts:
     image: travisvn/openai-edge-tts:latest
     ports:
       - "5050:5050"
     environment:
-      - OPENAI_API_KEY=sk-openai-edge-tts
+      - API_KEY=gerçek_api_key
+      - PORT=5050
+      - DEFAULT_VOICE=tr-TR-AhmetNeural
+      - DEFAULT_RESPONSE_FORMAT=mp3
+      - DEFAULT_SPEED=1.0
+      - DEFAULT_LANGUAGE=tr-TR
+      - REQUIRE_API_KEY=true
+      - REMOVE_FILTER=false
+      - EXPAND_API=true
+      - DETAILED_ERROR_LOGGING=true
     networks:
       - tts-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5050/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   tts-network:

@@ -1,6 +1,6 @@
 # 🎤 TTS Arayüzü - Metin Sesli Okuma
 
-OpenAI Edge TTS API'si ile güçlendirilmiş modern ve kullanıcı dostu metin sesli okuma arayüzü.
+OpenAI-Compatible Edge TTS API ile güçlendirilmiş modern ve kullanıcı dostu metin sesli okuma arayüzü. Microsoft Edge'in ücretsiz TTS servisini OpenAI uyumlu endpoint üzerinden kullanır.
 
 ## ✨ Özellikler
 
@@ -13,37 +13,65 @@ OpenAI Edge TTS API'si ile güçlendirilmiş modern ve kullanıcı dostu metin s
 
 ## 🚀 Kurulum
 
+### 📦 **Local Development**
+
 1. **Repository'yi klonlayın:**
    ```bash
    git clone https://github.com/seyhancanyakan/edgetts.git
    cd edgetts
    ```
 
-2. **Bağımlılıkları yükleyin:**
+2. **Docker Compose ile çalıştırın:**
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Tarayıcınızda açın:**
+   ```
+   http://localhost:3000
+   ```
+
+### 🐳 **Coolify Deployment (Önerilen)**
+
+1. **Coolify Dashboard'da:**
+   - **New Project** > **Deploy from Git**
+   - **Repository:** `https://github.com/seyhancanyakan/edgetts.git`
+   - **Branch:** `master`
+
+2. **Build Type:** Docker Compose
+
+3. **Environment Variables:**
+   ```env
+   # TTS API Configuration - Production
+   TTS_API_URL=http://46.62.160.181:5050/v1/audio/speech
+   TTS_API_KEY=gerçek_api_key
+   
+   # Next.js Configuration
+   NODE_ENV=production
+   NEXT_TELEMETRY_DISABLED=1
+   ```
+
+4. **Deploy!** 🚀
+
+### 🔧 **Manuel Kurulum**
+
+1. **Bağımlılıkları yükleyin:**
    ```bash
    npm install
    ```
 
-3. **Environment variables'ı ayarlayın:**
+2. **OpenAI-Compatible Edge TTS Server'ı başlatın:**
    ```bash
-   cp .env.example .env.local
-   # .env.local dosyasını kendi sunucu bilgilerinizle düzenleyin
+   docker run -d -p 5050:5050 \
+     -e API_KEY=sk-proj-tts-edge-api-key \
+     -e DEFAULT_VOICE=tr-TR-AhmetNeural \
+     -e DEFAULT_LANGUAGE=tr-TR \
+     travisvn/openai-edge-tts:latest
    ```
 
-4. **OpenAI Edge TTS API'sini başlatın:**
-   ```bash
-   docker run -d -p 5050:5050 travisvn/openai-edge-tts:latest
-   ```
-
-5. **Development server'ı başlatın:**
+3. **Development server'ı başlatın:**
    ```bash
    npm run dev
-   ```
-
-6. **Tarayıcınızda açın:**
-   ```
-   http://localhost:3000
-   # veya sunucunuzda: http://46.62.160.181:3000
    ```
 
 ## 🔧 Yapılandırma
@@ -120,10 +148,12 @@ const TURKISH_VOICES = [
 ### Backend TTS Service
 - OpenAI Edge TTS API: `http://46.62.160.181:5050/v1/audio/speech`
 
-### API Test
+### 🧪 **API Test Komutları**
+
+**Local Test:**
 ```bash
-# cURL ile test
-curl -X POST http://46.62.160.181:3000/api/tts \
+# Frontend API Test
+curl -X POST http://localhost:3000/api/tts \
   -H "Content-Type: application/json" \
   -d '{
     "input": "Merhaba dünya",
@@ -132,14 +162,38 @@ curl -X POST http://46.62.160.181:3000/api/tts \
   }' \
   --output test-audio.mp3
 
-# PowerShell ile test
+# Direct Edge TTS Test
+curl -X POST http://localhost:5050/v1/audio/speech \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Direct test",
+    "voice": "tr-TR-EmelNeural",
+    "speed": 1.0
+  }' \
+  --output direct-test.mp3
+```
+
+**Production Test (Coolify'dan sonra):**
+```bash
+curl -X POST https://your-coolify-domain.com/api/tts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Production test",
+    "voice": "tr-TR-AhmetNeural",
+    "speed": 1.0
+  }' \
+  --output prod-test.mp3
+```
+
+**PowerShell Test:**
+```powershell
 $body = @{
-    input = "Merhaba dünya"
+    input = "Test mesajı"
     voice = "tr-TR-AhmetNeural"
     speed = 1.0
 } | ConvertTo-Json
 
-Invoke-WebRequest -Uri "http://46.62.160.181:3000/api/tts" -Method POST -Body $body -ContentType "application/json" -OutFile "test-audio.mp3"
+Invoke-WebRequest -Uri "http://localhost:3000/api/tts" -Method POST -Body $body -ContentType "application/json" -OutFile "test-audio.mp3"
 ```
 
 ## 📄 Lisans

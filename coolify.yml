@@ -1,0 +1,33 @@
+# Coolify Configuration
+name: TTS Interface
+description: Modern Text-to-Speech Interface with Edge TTS
+
+services:
+  tts-interface:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - TTS_API_URL=http://edge-tts-server:5050/v1/audio/speech
+    ports:
+      - "3000:3000"
+    depends_on:
+      - edge-tts-server
+    
+  edge-tts-server:
+    build:
+      context: ./edge-tts-server
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5050/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  default:
+    external: false
