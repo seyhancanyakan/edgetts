@@ -13,35 +13,61 @@ OpenAI Edge TTS API'si ile güçlendirilmiş modern ve kullanıcı dostu metin s
 
 ## 🚀 Kurulum
 
-1. **Bağımlılıkları yükleyin:**
+1. **Repository'yi klonlayın:**
+   ```bash
+   git clone https://github.com/seyhancanyakan/edgetts.git
+   cd edgetts
+   ```
+
+2. **Bağımlılıkları yükleyin:**
    ```bash
    npm install
    ```
 
-2. **OpenAI Edge TTS API'sini başlatın:**
+3. **Environment variables'ı ayarlayın:**
+   ```bash
+   cp .env.example .env.local
+   # .env.local dosyasını kendi sunucu bilgilerinizle düzenleyin
+   ```
+
+4. **OpenAI Edge TTS API'sini başlatın:**
    ```bash
    docker run -d -p 5050:5050 travisvn/openai-edge-tts:latest
    ```
 
-3. **Development server'ı başlatın:**
+5. **Development server'ı başlatın:**
    ```bash
    npm run dev
    ```
 
-4. **Tarayıcınızda açın:**
+6. **Tarayıcınızda açın:**
    ```
    http://localhost:3000
+   # veya sunucunuzda: http://46.62.160.181:3000
    ```
 
 ## 🔧 Yapılandırma
 
+### Environment Variables
+
+`.env.local` dosyasında:
+
+```bash
+# TTS API Configuration
+TTS_API_URL=http://46.62.160.181:5050/v1/audio/speech
+TTS_API_KEY=sk-openai-edge-tts
+
+# Next.js Configuration
+NEXT_PUBLIC_APP_URL=http://46.62.160.181:3000
+```
+
 ### API Ayarları
 
-`src/app/api/tts/route.ts` dosyasında:
+`src/app/api/tts/route.ts` dosyası otomatik olarak environment variables'ları kullanır:
 
 ```typescript
-const TTS_API_URL = 'http://localhost:5050/v1/audio/speech';
-const API_KEY = 'your_api_key_here';
+const TTS_API_URL = process.env.TTS_API_URL || 'http://46.62.160.181:5050/v1/audio/speech';
+const API_KEY = process.env.TTS_API_KEY || 'sk-openai-edge-tts';
 ```
 
 ### Ses Seçenekleri
@@ -87,8 +113,34 @@ const TURKISH_VOICES = [
 
 ## 🔗 API Endpoints
 
+### Frontend API
 - `POST /api/tts` - Metin ses dönüştürme
-- Backend: `http://localhost:5050/v1/audio/speech`
+- URL: `http://46.62.160.181:3000/api/tts`
+
+### Backend TTS Service
+- OpenAI Edge TTS API: `http://46.62.160.181:5050/v1/audio/speech`
+
+### API Test
+```bash
+# cURL ile test
+curl -X POST http://46.62.160.181:3000/api/tts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Merhaba dünya",
+    "voice": "tr-TR-AhmetNeural",
+    "speed": 1.0
+  }' \
+  --output test-audio.mp3
+
+# PowerShell ile test
+$body = @{
+    input = "Merhaba dünya"
+    voice = "tr-TR-AhmetNeural"
+    speed = 1.0
+} | ConvertTo-Json
+
+Invoke-WebRequest -Uri "http://46.62.160.181:3000/api/tts" -Method POST -Body $body -ContentType "application/json" -OutFile "test-audio.mp3"
+```
 
 ## 📄 Lisans
 

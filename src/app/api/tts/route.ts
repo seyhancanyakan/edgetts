@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const TTS_API_URL = 'http://88.247.52.105:5050/v1/audio/speech';
-const API_KEY = 'your_api_key_here';
+const TTS_API_URL = process.env.TTS_API_URL || 'http://46.62.160.181:5050/v1/audio/speech';
+const API_KEY = process.env.TTS_API_KEY || 'sk-openai-edge-tts';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
         response_format: body.response_format || 'mp3',
         speed: body.speed || 1.0,
       }),
+      signal: AbortSignal.timeout(60000), // 60 saniye timeout
     });
 
     if (!response.ok) {
