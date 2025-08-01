@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const TTS_API_URL = process.env.TTS_API_URL || 'http://46.62.160.181:5050/v1/audio/speech';
+const TTS_API_URL = process.env.TTS_API_URL || 'http://localhost:5050/v1/audio/speech';
 const API_KEY = process.env.TTS_API_KEY || 'sk-openai-edge-tts';
 
 export async function POST(request: NextRequest) {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
+        ...(API_KEY !== 'sk-openai-edge-tts' ? { 'Authorization': `Bearer ${API_KEY}` } : {}),
       },
       body: JSON.stringify({
         input: body.input,

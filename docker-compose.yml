@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  tts-interface:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - TTS_API_URL=http://tts-api:5050/v1/audio/speech
+      - TTS_API_KEY=sk-openai-edge-tts
+      - NODE_ENV=production
+    depends_on:
+      - tts-api
+    networks:
+      - tts-network
+
+  tts-api:
+    image: travisvn/openai-edge-tts:latest
+    ports:
+      - "5050:5050"
+    environment:
+      - OPENAI_API_KEY=sk-openai-edge-tts
+    networks:
+      - tts-network
+
+networks:
+  tts-network:
+    driver: bridge
