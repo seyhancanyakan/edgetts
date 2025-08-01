@@ -2,25 +2,30 @@ version: '3.8'
 
 services:
   tts-interface:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
-      - TTS_API_URL=http://46.62.160.181:5050/v1/audio/speech
-      - TTS_API_KEY=gerçek_api_key
-      - NODE_ENV=production
-      - NEXT_TELEMETRY_DISABLED=1
+      - TTS_API_URL=${TTS_API_URL:-http://openai-edge-tts:5050/v1/audio/speech}
+      - TTS_API_KEY=${TTS_API_KEY:-gerçek_api_key}
+      - NODE_ENV=${NODE_ENV:-production}
+      - NEXT_TELEMETRY_DISABLED=${NEXT_TELEMETRY_DISABLED:-1}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://46.62.160.181:3000}
     depends_on:
-      - openai-edge-tts
+      openai-edge-tts:
+        condition: service_healthy
     networks:
       - tts-network
+    restart: unless-stopped
 
   openai-edge-tts:
     image: travisvn/openai-edge-tts:latest
     ports:
-      - "5050:5050"
+      - "${TTS_SERVICE_PORT:-5050}:5050"
     environment:
-      - API_KEY=gerçek_api_key
+      - API_KEY=${TTS_API_KEY:-gerçek_api_key}
       - PORT=5050
       - DEFAULT_VOICE=tr-TR-AhmetNeural
       - DEFAULT_RESPONSE_FORMAT=mp3
@@ -32,11 +37,13 @@ services:
       - DETAILED_ERROR_LOGGING=true
     networks:
       - tts-network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5050/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:5050/health || timeout 1 wget -q -O- http://localhost:5050/ || exit 1"]
       interval: 30s
-      timeout: 10s
-      retries: 3
+      timeout: 15s
+      retries: 5
+      start_period: 60s
 
 networks:
   tts-network:

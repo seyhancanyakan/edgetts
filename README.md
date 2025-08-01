@@ -49,9 +49,41 @@ OpenAI-Compatible Edge TTS API ile güçlendirilmiş modern ve kullanıcı dostu
    # Next.js Configuration
    NODE_ENV=production
    NEXT_TELEMETRY_DISABLED=1
+   NEXT_PUBLIC_APP_URL=http://46.62.160.181:3000
+   
+   # Port Configuration
+   FRONTEND_PORT=3000
+   TTS_SERVICE_PORT=5050
    ```
 
-4. **Deploy!** 🚀
+4. **Port Mappings Coolify'da:**
+   - Frontend: `3000:3000`
+   - TTS Service: `5050:5050`
+
+5. **Deploy & Test!** 🚀
+
+### **📡 COOLIFY DEPLOYMENT TEST**
+
+Deploy sonrası endpoint'leri test edin:
+
+```bash
+# Frontend health check
+curl -I http://46.62.160.181:3000
+
+# TTS API test
+curl -X POST http://46.62.160.181:3000/api/tts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": "Coolify deployment test",
+    "voice": "tr-TR-AhmetNeural",
+    "speed": 1.0
+  }' \
+  --output coolify-test.mp3
+
+# PowerShell test
+$body = @{ input = "Coolify test"; voice = "tr-TR-AhmetNeural" } | ConvertTo-Json
+Invoke-WebRequest -Uri "http://46.62.160.181:3000/api/tts" -Method POST -Body $body -ContentType "application/json" -OutFile "coolify-test.mp3"
+```
 
 ### 🔧 **Manuel Kurulum**
 
