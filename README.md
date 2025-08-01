@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎤 TTS Arayüzü - Metin Sesli Okuma
 
-## Getting Started
+OpenAI Edge TTS API'si ile güçlendirilmiş modern ve kullanıcı dostu metin sesli okuma arayüzü.
 
-First, run the development server:
+## ✨ Özellikler
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- 🇹🇷 **Türkçe Dil Desteği** - Ahmet, Emel, Seda gibi doğal Türkçe sesler
+- 🌍 **Çoklu Dil Desteği** - İngilizce, Almanca, Fransızca ve daha fazlası
+- ⚡ **Hız Kontrolü** - 0.5x ile 2.0x arasında konuşma hızı ayarı
+- 🎵 **Ses Kontrolleri** - Oynat, durdur, indir fonksiyonları
+- 📱 **Responsive Tasarım** - Mobil ve masaüstü uyumlu
+- 🎨 **Modern UI** - Tailwind CSS ile tasarlanmış güzel arayüz
+
+## 🚀 Kurulum
+
+1. **Bağımlılıkları yükleyin:**
+   ```bash
+   npm install
+   ```
+
+2. **OpenAI Edge TTS API'sini başlatın:**
+   ```bash
+   docker run -d -p 5050:5050 travisvn/openai-edge-tts:latest
+   ```
+
+3. **Development server'ı başlatın:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Tarayıcınızda açın:**
+   ```
+   http://localhost:3000
+   ```
+
+## 🔧 Yapılandırma
+
+### API Ayarları
+
+`src/app/api/tts/route.ts` dosyasında:
+
+```typescript
+const TTS_API_URL = 'http://localhost:5050/v1/audio/speech';
+const API_KEY = 'your_api_key_here';
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Ses Seçenekleri
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`src/app/page.tsx` dosyasında ses listesini özelleştirebilirsiniz:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```typescript
+const TURKISH_VOICES = [
+  { id: 'tr-TR-AhmetNeural', name: 'Ahmet (Erkek)', gender: 'male' },
+  { id: 'tr-TR-EmelNeural', name: 'Emel (Kadın)', gender: 'female' },
+  // Daha fazla ses ekleyebilirsiniz...
+];
+```
 
-## Learn More
+## 📝 Kullanım
 
-To learn more about Next.js, take a look at the following resources:
+1. **Metin Girin:** Sol panelde sesli okutmak istediğiniz metni yazın
+2. **Ses Seçin:** Sağ panelden istediğiniz sesi seçin
+3. **Hız Ayarlayın:** Konuşma hızını 0.5x - 2.0x arasında ayarlayın
+4. **Ses Oluşturun:** "Ses Oluştur" butonuna tıklayın
+5. **Dinleyin:** Oluşturulan sesi oynatın veya indirin
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Teknolojiler
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 15** - React framework
+- **TypeScript** - Tip güvenliği
+- **Tailwind CSS** - Styling
+- **Lucide React** - İkonlar
+- **React Hot Toast** - Bildirimler
+- **OpenAI Edge TTS** - Ses sentezi
 
-## Deploy on Vercel
+## 📱 Ekran Görüntüleri
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Ana Arayüz
+- Modern ve temiz tasarım
+- Responsive layout
+- Kolay kullanım
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Ses Kontrolleri
+- Oynat/Durdur butonları
+- İndirme özelliği
+- Ses çubuğu kontrolü
+
+## 🔗 API Endpoints
+
+- `POST /api/tts` - Metin ses dönüştürme
+- Backend: `http://localhost:5050/v1/audio/speech`
+
+## 📄 Lisans
+
+MIT License - Detaylar için LICENSE dosyasına bakın.
+
+## 🤝 Katkıda Bulunma
+
+1. Fork edin
+2. Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
+3. Commit edin (`git commit -m 'Add some AmazingFeature'`)
+4. Push edin (`git push origin feature/AmazingFeature`)
+5. Pull Request açın
+
+## 📞 Destek
+
+Herhangi bir sorun yaşarsanız:
+- Issues bölümünde bildirin
+- Dokümantasyonu kontrol edin
+- API loglarını inceleyin
